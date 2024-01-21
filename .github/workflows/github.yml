@@ -1,0 +1,38 @@
+name: Model Versioning and Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+_[a-zA-Z_]+'
+
+jobs:
+  versioning_and_create_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Get Model Version
+        id: get_version
+        run: echo "::set-output name=version::$(echo ${{ github.event_name }} | sed -n 's/refs\/tags\/v\([0-9.]*\)_[a-zA-Z_]+/\1/p')"
+      - name: Rename Model File with Version
+        run: mv model.pickle ${{ steps.get_version.outputs.version }}.pickle
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          release_name: ${{ steps.get_version.outputs.version }}
+          draft: false
+          prerelease: false
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.get_version.outputs.version }}.pickle
+          asset_name: ${{ steps.get_version.outputs.version }}.pickle
+          asset_content_type: application/x-tar
