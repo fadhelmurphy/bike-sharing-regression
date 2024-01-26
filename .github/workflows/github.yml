@@ -16,7 +16,7 @@ jobs:
         id: get_version
         run: echo "::set-output name=version::$(echo ${{ github.event_name }} | sed -n 's/refs\/tags\/v\([0-9.]*\)_[a-zA-Z_]+/\1/p')"
       - name: Rename Model File with Version
-        run: mv model.pickle ${{ steps.get_version.outputs.version }}.pkl
+        run: mv model.pkl ${{ steps.get_version.outputs.version }}.pkl
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
