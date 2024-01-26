@@ -7,6 +7,7 @@ on:
 
 jobs:
   versioning_and_create_release:
+    permissions: write-all
     runs-on: ubuntu-latest
 
     steps:
